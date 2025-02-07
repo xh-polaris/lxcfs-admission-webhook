@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: lxcfs-admission-webhook-crt
+  namespace: lxcfs
+spec:
+  dnsNames:
+    - lxcfs-admission-webhook
+    - lxcfs-admission-webhook.lxcfs
+    - lxcfs-admission-webhook.lxcfs.svc
+    - lxcfs-admission-webhook.lxcfs.svc.cluster.local
+  issuerRef:
+    kind: ClusterIssuer
+    name: ca-issuer
+  secretName: lxcfs-admission-webhook-crt
