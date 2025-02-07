@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app: lxcfs
+  name: lxcfs
+  namespace: lxcfs
+spec:
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: lxcfs
+  template:
+    metadata:
+      labels:
+        app: lxcfs
+      name: lxcfs
+      namespace: lxcfs
+    spec:
+      containers:
+        - args:
+            - /var/lib/lxcfs
+            - '-o'
+            - nonempty
+          command:
+            - /usr/bin/lxcfs
+          image: xhpolaris/lxcfs:6.0.2
+          imagePullPolicy: IfNotPresent
+          name: lxcfs
+          resources: {}
+          securityContext:
+            privileged: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /sys/fs/cgroup
+              name: cgroup
+            - mountPath: /var/lib/lxcfs
+              mountPropagation: Bidirectional
+              name: lxcfs
+            - mountPath: /usr/local
+              name: usr-local
+            - mountPath: /usr/lib64
+              name: usr-lib64
+      dnsPolicy: ClusterFirst
+      hostPID: true
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - hostPath:
+            path: /sys/fs/cgroup
+            type: ''
+          name: cgroup
+        - hostPath:
+            path: /usr/local
+            type: ''
+          name: usr-local
+        - hostPath:
+            path: /usr/lib64
+            type: ''
+          name: usr-lib64
+        - hostPath:
+            path: /var/lib/lxcfs
+            type: DirectoryOrCreate
+          name: lxcfs
+  updateStrategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+    type: RollingUpdate
